@@ -106,7 +106,7 @@ def compute_face_normals(verts, faces):
                  verts.index_select(1, fi[1]),
                  verts.index_select(1, fi[2])]
 
-    c = torch.cross(v[1] - v[0], v[2] - v[0])
+    c = torch.linalg.cross(v[1] - v[0], v[2] - v[0], dim=0)
     n = c / torch.norm(c, dim=0)
     return n
 
