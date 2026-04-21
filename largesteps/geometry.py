@@ -47,7 +47,7 @@ def laplacian_cot(verts, faces):
     ii = faces[:, [1, 2, 0]]
     jj = faces[:, [2, 0, 1]]
     idx = torch.stack([ii, jj], dim=0).view(2, F * 3)
-    L = torch.sparse.FloatTensor(idx, cot.view(-1), (V, V))
+    L = torch.sparse_coo_tensor(idx, cot.view(-1), (V, V))
 
     # Make it symmetric; this means we are also setting
     # L[v2, v1] = cota
@@ -59,7 +59,7 @@ def laplacian_cot(verts, faces):
     vals = torch.sparse.sum(L, dim=0).to_dense()
     indices = torch.arange(V, device='cuda')
     idx = torch.stack([indices, indices], dim=0)
-    L = torch.sparse.FloatTensor(idx, vals, (V, V)) - L
+    L = torch.sparse_coo_tensor(idx, vals, (V, V)) - L
     return L
 
 def laplacian_uniform(verts, faces):
