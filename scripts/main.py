@@ -120,10 +120,16 @@ def optimize_shape(filepath, params):
     t = t0
     opt_time *= 60
 
-    # Dictionary that is returned in the end, contains useful information for debug/analysis
+    # Dictionary that is returned in the end, contains useful information for debug/analysis.
+    # `v_unique` / `f_unique` are the exact arrays fed to `compute_matrix` at each
+    # remesh stage; we snapshot them so downstream consumers (e.g. matrix-dump
+    # visualizers) can reproduce the exact vertex indexing used to build M,
+    # without re-running `torch.unique` on FP-noisy reconstructions.
     result_dict = {"vert_steps": [], "tr_steps": [], "f": [f_src.cpu().numpy().copy()],
                 "losses": [], "im_ref": ref_imgs.cpu().numpy().copy(), "im":[],
-                "v_ref": v_ref.cpu().numpy().copy(), "f_ref": f_ref.cpu().numpy().copy()}
+                "v_ref": v_ref.cpu().numpy().copy(), "f_ref": f_ref.cpu().numpy().copy(),
+                "v_unique": [v_unique.detach().cpu().numpy().copy()],
+                "f_unique": [f_unique.detach().cpu().numpy().copy()]}
 
     if type(remesh) == list:
         remesh_it = remesh.pop(0)
@@ -153,6 +159,8 @@ def optimize_shape(filepath, params):
 
                     v_unique, f_unique, duplicate_idx = remove_duplicates(v_src, f_src)
                     result_dict["f"].append(f_new)
+                    result_dict["v_unique"].append(v_unique.detach().cpu().numpy().copy())
+                    result_dict["f_unique"].append(f_unique.detach().cpu().numpy().copy())
                     # Recompute laplacian
                     L = laplacian_uniform(v_unique, f_unique)
 

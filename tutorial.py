@@ -17,7 +17,7 @@ import polyscope.imgui as psim
 
 
 # Load the scene
-filepath = os.path.join(os.getcwd(), "scenes", "planck", "planck.xml")
+filepath = os.path.join(os.getcwd(), "scenes", "suzanne", "suzanne.xml")
 scene_params = load_scene(filepath)
 
 # Load reference shape
@@ -39,11 +39,11 @@ ref_imgs = renderer.render(v_ref, n_ref, f_ref)
 # plt.savefig('ref.png', bbox_inches='tight', dpi=150)
 # plt.show()
 
-steps = 1000
+steps = 5000
 step_size = 3e-2
 lambda_ = 19
 
-M = compute_matrix(v, f, lambda_)
+M = compute_matrix(v, f, lambda_, cotan=True)
 u = to_differential(M, v)
 u.requires_grad = True
 opt = AdamUniform([u], step_size)

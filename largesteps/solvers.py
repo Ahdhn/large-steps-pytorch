@@ -32,8 +32,11 @@ class CholeskySolver():
     """
     def __init__(self, M):
         self.solver = CholeskySolverF(M.shape[0], M.indices()[0], M.indices()[1], M.values(), MatrixType.COO)
+        self.M = M
 
     def solve(self, b, backward=False):
+        from largesteps.parameterize import _record_solve
+        _record_solve(self.M, b, backward)
         x = torch.zeros_like(b)
         self.solver.solve(b.detach(), x)
         return x
@@ -99,6 +102,8 @@ class ConjugateGradientSolver(Solver):
         backward : bool
             Whether we are in the backward or the forward pass.
         """
+        from largesteps.parameterize import _record_solve
+        _record_solve(self.M, b, backward)
         if self.guess_fwd is None:
             # Initialize starting guesses in the first run
             self.guess_bwd = torch.zeros_like(b)
